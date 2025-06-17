@@ -7,13 +7,18 @@
   <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
   <script src="https://unpkg.com/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
 </head>
-<body class="bg-blue-900 flex items-center justify-center min-h-screen cursor-customizado">
   <style>
+    body{
+        background-color: #000755;
+        background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 1000'%3E%3Cg %3E%3Ccircle fill='%23000755' cx='50' cy='0' r='50'/%3E%3Cg fill='%2307095d' %3E%3Ccircle cx='0' cy='50' r='50'/%3E%3Ccircle cx='100' cy='50' r='50'/%3E%3C/g%3E%3Ccircle fill='%230f0b66' cx='50' cy='100' r='50'/%3E%3Cg fill='%23170c6e' %3E%3Ccircle cx='0' cy='150' r='50'/%3E%3Ccircle cx='100' cy='150' r='50'/%3E%3C/g%3E%3Ccircle fill='%231e0e76' cx='50' cy='200' r='50'/%3E%3Cg fill='%23260f7f' %3E%3Ccircle cx='0' cy='250' r='50'/%3E%3Ccircle cx='100' cy='250' r='50'/%3E%3C/g%3E%3Ccircle fill='%232d1187' cx='50' cy='300' r='50'/%3E%3Cg fill='%23351290' %3E%3Ccircle cx='0' cy='350' r='50'/%3E%3Ccircle cx='100' cy='350' r='50'/%3E%3C/g%3E%3Ccircle fill='%233c1399' cx='50' cy='400' r='50'/%3E%3Cg fill='%234414a1' %3E%3Ccircle cx='0' cy='450' r='50'/%3E%3Ccircle cx='100' cy='450' r='50'/%3E%3C/g%3E%3Ccircle fill='%234c15aa' cx='50' cy='500' r='50'/%3E%3Cg fill='%235416b2' %3E%3Ccircle cx='0' cy='550' r='50'/%3E%3Ccircle cx='100' cy='550' r='50'/%3E%3C/g%3E%3Ccircle fill='%235c16bb' cx='50' cy='600' r='50'/%3E%3Cg fill='%236416c4' %3E%3Ccircle cx='0' cy='650' r='50'/%3E%3Ccircle cx='100' cy='650' r='50'/%3E%3C/g%3E%3Ccircle fill='%236c16cc' cx='50' cy='700' r='50'/%3E%3Cg fill='%237516d5' %3E%3Ccircle cx='0' cy='750' r='50'/%3E%3Ccircle cx='100' cy='750' r='50'/%3E%3C/g%3E%3Ccircle fill='%237e15dd' cx='50' cy='800' r='50'/%3E%3Cg fill='%238713e6' %3E%3Ccircle cx='0' cy='850' r='50'/%3E%3Ccircle cx='100' cy='850' r='50'/%3E%3C/g%3E%3Ccircle fill='%239011ee' cx='50' cy='900' r='50'/%3E%3Cg fill='%23990ef7' %3E%3Ccircle cx='0' cy='950' r='50'/%3E%3Ccircle cx='100' cy='950' r='50'/%3E%3C/g%3E%3Ccircle fill='%23A309FF' cx='50' cy='1000' r='50'/%3E%3C/g%3E%3C/svg%3E");
+        background-attachment: fixed;
+        background-size: contain;
+    }
     .cursor-customizado {
       cursor: url("data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A//www.w3.org/2000/svg%22%20width%3D%2236%22%20height%3D%2248%22%20viewBox%3D%220%200%2024%2024%22%3E%3Cpath%20fill%3D%22%23FFFFFF%22%20stroke%3D%22%23000%22%20stroke-width%3D%222%22%20d%3D%22M5.5%203.21V20.8c0%20.45.54.67.85.35l4.86-4.86a.5.5%200%200%201%20.35-.15h6.87a.5.5%200%200%200%20.35-.85L6.35%202.85a.5.5%200%200%200-.85.35Z%22/%3E%3C/svg%3E") 0 0, auto;
     }
   </style>
-
+<body class="cursor-customizado"></body>
   <div class="bg-white p-6 rounded-lg shadow-md w-full max-w-xl">
     <h2 class="text-2xl font-bold mb-4 text-center">Gestión de Datos (Excel)</h2>
 
