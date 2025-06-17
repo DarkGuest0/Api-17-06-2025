@@ -1,0 +1,111 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Gestión de Datos (Excel)</title>
+  <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+  <script src="https://unpkg.com/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
+</head>
+<body class="bg-blue-900 flex items-center justify-center min-h-screen cursor-customizado">
+  <style>
+    .cursor-customizado {
+      cursor: url("data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A//www.w3.org/2000/svg%22%20width%3D%2236%22%20height%3D%2248%22%20viewBox%3D%220%200%2024%2024%22%3E%3Cpath%20fill%3D%22%23FFFFFF%22%20stroke%3D%22%23000%22%20stroke-width%3D%222%22%20d%3D%22M5.5%203.21V20.8c0%20.45.54.67.85.35l4.86-4.86a.5.5%200%200%201%20.35-.15h6.87a.5.5%200%200%200%20.35-.85L6.35%202.85a.5.5%200%200%200-.85.35Z%22/%3E%3C/svg%3E") 0 0, auto;
+    }
+  </style>
+
+  <div class="bg-white p-6 rounded-lg shadow-md w-full max-w-xl">
+    <h2 class="text-2xl font-bold mb-4 text-center">Gestión de Datos (Excel)</h2>
+
+    <div class="mb-4">
+      <label class="block mb-1 text-sm font-semibold">Cargar archivo Excel (datos_YYYY-MM-DD.xlsx):</label>
+      <input type="file" id="inputExcel" accept=".xlsx,.xls" class="w-full border px-2 py-1">
+    </div>
+
+    <div class="mb-4">
+      <input type="text" id="nombre" placeholder="Nombre" class="w-full border px-2 py-1 mb-2">
+      <input type="number" id="edad" placeholder="Edad" class="w-full border px-2 py-1">
+      <button onclick="agregarFila()" class="bg-blue-600 text-white px-4 py-2 rounded mt-2">Guardar</button>
+    </div>
+
+    <table class="w-full border mt-4 text-sm text-left">
+      <thead class="bg-gray-100">
+        <tr>
+          <th class="border px-2 py-1">ID</th>
+          <th class="border px-2 py-1">Nombre</th>
+          <th class="border px-2 py-1">Edad</th>
+          <th class="border px-2 py-1">Acciones</th>
+        </tr>
+      </thead>
+      <tbody id="tablaDatos"></tbody>
+    </table>
+
+    <button onclick="exportarExcel()" class="bg-green-600 text-white px-4 py-2 rounded mt-4 w-full">Exportar a Excel</button>
+  </div>
+
+  <script>
+    let datos = [];
+    let idCounter = 1;
+
+    document.getElementById('inputExcel').addEventListener('change', async (e) => {
+      const file = e.target.files[0];
+      if (!file) return;
+      const data = await file.arrayBuffer();
+      const workbook = XLSX.read(data);
+      const hoja = workbook.Sheets[workbook.SheetNames[0]];
+      const json = XLSX.utils.sheet_to_json(hoja, { defval: '' });
+
+      datos = json.map((item, i) => ({
+        id: i + 1,
+        nombre: item.Nombre || '',
+        edad: item.Edad || ''
+      }));
+      idCounter = datos.length + 1;
+      renderTabla();
+    });
+
+    function agregarFila() {
+      const nombre = document.getElementById('nombre').value.trim();
+      const edad = document.getElementById('edad').value.trim();
+
+      if (!nombre || !edad) return alert('Completa todos los campos');
+
+      datos.push({ id: idCounter++, nombre, edad });
+      document.getElementById('nombre').value = '';
+      document.getElementById('edad').value = '';
+      renderTabla();
+    }
+
+    function eliminarFila(id) {
+      datos = datos.filter(item => item.id !== id);
+      renderTabla();
+    }
+
+    function renderTabla() {
+      const tbody = document.getElementById('tablaDatos');
+      tbody.innerHTML = '';
+      datos.forEach(d => {
+        const tr = document.createElement('tr');
+        tr.innerHTML = `
+          <td class="border px-2 py-1">${d.id}</td>
+          <td class="border px-2 py-1">${d.nombre}</td>
+          <td class="border px-2 py-1">${d.edad}</td>
+          <td class="border px-2 py-1 text-center">
+            <button onclick="eliminarFila(${d.id})" class="text-red-600 hover:underline">Eliminar</button>
+          </td>`;
+        tbody.appendChild(tr);
+      });
+    }
+
+    function exportarExcel() {
+      const worksheet = XLSX.utils.json_to_sheet(datos.map(d => ({
+        Nombre: d.nombre,
+        Edad: d.edad
+      })));
+      const wb = XLSX.utils.book_new();
+      XLSX.utils.book_append_sheet(wb, worksheet, "Datos");
+      XLSX.writeFile(wb, `datos_exportados_${new Date().toISOString().slice(0,10)}.xlsx`);
+    }
+  </script>
+</body>
+</html>
