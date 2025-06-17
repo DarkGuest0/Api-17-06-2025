@@ -31,7 +31,7 @@
     <div class="mb-4">
       <input type="text" id="nombre" placeholder="Nombre" class="w-full border px-2 py-1 mb-2">
       <input type="number" id="edad" placeholder="Edad" class="w-full border px-2 py-1">
-      <button onclick="agregarFila()" class="bg-blue-600 text-white px-4 py-2 rounded mt-2">Guardar</button>
+      <button id="btnGuardar" onclick="agregarFila()" class="bg-blue-600 text-white px-4 py-2 rounded mt-2 w-full">Guardar</button>
     </div>
 
     <table class="w-full border mt-4 text-sm text-left">
@@ -49,69 +49,100 @@
     <button onclick="exportarExcel()" class="bg-green-600 text-white px-4 py-2 rounded mt-4 w-full">Exportar a Excel</button>
   </div>
 
-  <script>
-    let datos = [];
-    let idCounter = 1;
+<script>
+  let datos = [];
+  let idCounter = 1;
+  let idEditando = null; // ← para saber si estamos editando
 
-    document.getElementById('inputExcel').addEventListener('change', async (e) => {
-      const file = e.target.files[0];
-      if (!file) return;
-      const data = await file.arrayBuffer();
-      const workbook = XLSX.read(data);
-      const hoja = workbook.Sheets[workbook.SheetNames[0]];
-      const json = XLSX.utils.sheet_to_json(hoja, { defval: '' });
+  document.getElementById('inputExcel').addEventListener('change', async (e) => {
+    const file = e.target.files[0];
+    if (!file) return;
+    const data = await file.arrayBuffer();
+    const workbook = XLSX.read(data);
+    const hoja = workbook.Sheets[workbook.SheetNames[0]];
+    const json = XLSX.utils.sheet_to_json(hoja, { defval: '' });
 
-      datos = json.map((item, i) => ({
-        id: i + 1,
-        nombre: item.Nombre || '',
-        edad: item.Edad || ''
-      }));
-      idCounter = datos.length + 1;
-      renderTabla();
-    });
+    datos = json.map((item, i) => ({
+      id: i + 1,
+      nombre: item.Nombre || '',
+      edad: item.Edad || ''
+    }));
+    idCounter = datos.length + 1;
+    renderTabla();
+  });
 
-    function agregarFila() {
-      const nombre = document.getElementById('nombre').value.trim();
-      const edad = document.getElementById('edad').value.trim();
+  function agregarFila() {
+    const nombre = document.getElementById('nombre').value.trim();
+    const edad = document.getElementById('edad').value.trim();
 
-      if (!nombre || !edad) return alert('Completa todos los campos');
+    if (!nombre || !edad) return alert('Completa todos los campos');
 
+    if (idEditando !== null) {
+      // Si estamos editando, actualizar
+      const item = datos.find(d => d.id === idEditando);
+      if (item) {
+        item.nombre = nombre;
+        item.edad = edad;
+      }
+      idEditando = null;
+      document.querySelector('#btnGuardar').innerText = 'Guardar';
+    } else {
+      // Si no, crear nuevo
       datos.push({ id: idCounter++, nombre, edad });
+    }
+
+    document.getElementById('nombre').value = '';
+    document.getElementById('edad').value = '';
+    renderTabla();
+  }
+
+  function editarFila(id) {
+    const item = datos.find(d => d.id === id);
+    if (!item) return;
+
+    document.getElementById('nombre').value = item.nombre;
+    document.getElementById('edad').value = item.edad;
+    idEditando = id;
+    document.querySelector('#btnGuardar').innerText = 'Actualizar';
+  }
+
+  function eliminarFila(id) {
+    datos = datos.filter(item => item.id !== id);
+    if (id === idEditando) {
+      idEditando = null;
       document.getElementById('nombre').value = '';
       document.getElementById('edad').value = '';
-      renderTabla();
+      document.querySelector('#btnGuardar').innerText = 'Guardar';
     }
+    renderTabla();
+  }
 
-    function eliminarFila(id) {
-      datos = datos.filter(item => item.id !== id);
-      renderTabla();
-    }
+  function renderTabla() {
+    const tbody = document.getElementById('tablaDatos');
+    tbody.innerHTML = '';
+    datos.forEach(d => {
+      const tr = document.createElement('tr');
+      tr.innerHTML = `
+        <td class="border px-2 py-1">${d.id}</td>
+        <td class="border px-2 py-1">${d.nombre}</td>
+        <td class="border px-2 py-1">${d.edad}</td>
+        <td class="border px-2 py-1 text-center space-x-2">
+          <button onclick="editarFila(${d.id})" class="text-yellow-600 hover:underline">Editar</button>
+          <button onclick="eliminarFila(${d.id})" class="text-red-600 hover:underline">Eliminar</button>
+        </td>`;
+      tbody.appendChild(tr);
+    });
+  }
 
-    function renderTabla() {
-      const tbody = document.getElementById('tablaDatos');
-      tbody.innerHTML = '';
-      datos.forEach(d => {
-        const tr = document.createElement('tr');
-        tr.innerHTML = `
-          <td class="border px-2 py-1">${d.id}</td>
-          <td class="border px-2 py-1">${d.nombre}</td>
-          <td class="border px-2 py-1">${d.edad}</td>
-          <td class="border px-2 py-1 text-center">
-            <button onclick="eliminarFila(${d.id})" class="text-red-600 hover:underline">Eliminar</button>
-          </td>`;
-        tbody.appendChild(tr);
-      });
-    }
-
-    function exportarExcel() {
-      const worksheet = XLSX.utils.json_to_sheet(datos.map(d => ({
-        Nombre: d.nombre,
-        Edad: d.edad
-      })));
-      const wb = XLSX.utils.book_new();
-      XLSX.utils.book_append_sheet(wb, worksheet, "Datos");
-      XLSX.writeFile(wb, `datos_exportados_${new Date().toISOString().slice(0,10)}.xlsx`);
-    }
-  </script>
+  function exportarExcel() {
+    const worksheet = XLSX.utils.json_to_sheet(datos.map(d => ({
+      Nombre: d.nombre,
+      Edad: d.edad
+    })));
+    const wb = XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(wb, worksheet, "Datos");
+    XLSX.writeFile(wb, `datos_exportados_${new Date().toISOString().slice(0,10)}.xlsx`);
+  }
+</script>
 </body>
 </html>
