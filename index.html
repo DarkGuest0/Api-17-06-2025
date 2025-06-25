@@ -52,11 +52,15 @@
 <script>
   let datos = [];
   let idCounter = 1;
-  let idEditando = null; // ← para saber si estamos editando
+  let idEditando = null;
+  let nombreArchivoOriginal = 'datos.xlsx'; // ← valor por defecto
 
   document.getElementById('inputExcel').addEventListener('change', async (e) => {
     const file = e.target.files[0];
     if (!file) return;
+
+    nombreArchivoOriginal = file.name.endsWith('.xlsx') ? file.name : `${file.name}.xlsx`;
+
     const data = await file.arrayBuffer();
     const workbook = XLSX.read(data);
     const hoja = workbook.Sheets[workbook.SheetNames[0]];
@@ -78,7 +82,6 @@
     if (!nombre || !edad) return alert('Completa todos los campos');
 
     if (idEditando !== null) {
-      // Si estamos editando, actualizar
       const item = datos.find(d => d.id === idEditando);
       if (item) {
         item.nombre = nombre;
@@ -87,7 +90,6 @@
       idEditando = null;
       document.querySelector('#btnGuardar').innerText = 'Guardar';
     } else {
-      // Si no, crear nuevo
       datos.push({ id: idCounter++, nombre, edad });
     }
 
@@ -135,13 +137,14 @@
   }
 
   function exportarExcel() {
-    const worksheet = XLSX.utils.json_to_sheet(datos.map(d => ({
-      Nombre: d.nombre,
-      Edad: d.edad
-    })));
+    const worksheet = XLSX.utils.json_to_sheet(
+      datos.map(d => ({ Nombre: d.nombre, Edad: d.edad }))
+    );
     const wb = XLSX.utils.book_new();
     XLSX.utils.book_append_sheet(wb, worksheet, "Datos");
-    XLSX.writeFile(wb, `datos_exportados_${new Date().toISOString().slice(0,10)}.xlsx`);
+
+    // Guardar con el mismo nombre del archivo original
+    XLSX.writeFile(wb, nombreArchivoOriginal);
   }
 </script>
 </body>
